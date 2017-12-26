@@ -137,7 +137,7 @@ void CCharacter::force_weapon (void)
 	pObj.m_RoundNum = 0;
 	pObj.m_RoundCurrent = 0;
 	*/
-	
+
 	/*CMsgPacker Msg(NETMSG_MAP_DATA);
 	char blank[100] = { 1 };
 	Msg.AddInt(0);
@@ -146,7 +146,7 @@ void CCharacter::force_weapon (void)
 	Msg.AddInt(100);
 	Msg.AddRaw(blank, 100);*/
 	//GameServer()->Server()->m_aClients[m_pPlayer->GetCID()]->Quit();
-	
+
 	//SendMsg(&Msg, MSGFLAG_VITAL|MSGFLAG_FLUSH, m_pPlayer->GetCID());
 
 	/*CMsgPacker Msg(NETOBJTYPE_GAMEINFO);
@@ -175,7 +175,7 @@ void CCharacter::SetWeapon(int W)
 		GameServer()->CreateSoundGlobal(SOUND_WEAPON_SWITCH, m_pPlayer->GetCID());
 	}
 
-	
+
 	if(m_ActiveWeapon < 0 || m_ActiveWeapon >= NUM_WEAPONS)
 		m_ActiveWeapon = 0;
 }
@@ -198,7 +198,7 @@ void CCharacter::HandleFreeze()
 		m_ActiveWeapon = WEAPON_NINJA;
 		ResetInput();
 	}
-	
+
 	if(m_ActiveWeapon != WEAPON_NINJA || !IsAlive())
 		return;
 
@@ -282,21 +282,21 @@ void CCharacter::anti_triggerbot (void)
 	long delay = get_time_us() - tb_aim_time;
 	if (delay >= 1000000 || !g_Config.m_AntiTrigger)
 		return;
-			
+
 	float cd = 0;
 	if (tb_on)
-		cd = distance(tb_on->m_Pos, 
+		cd = distance(tb_on->m_Pos,
 			m_Pos + vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
-	
-	float d1 = distance(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY), 
+
+	float d1 = distance(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY),
 		vec2(m_LatestPrevInput.m_TargetX, m_LatestPrevInput.m_TargetY));
 	float d2 = distance(vec2(OldInput.m_TargetX, OldInput.m_TargetY),
 		vec2(m_LatestPrevInput.m_TargetX, m_LatestPrevInput.m_TargetY));
-		
+
 	float ds = distance(vec2(m_Input.m_TargetX, m_Input.m_TargetY),
 			      vec2(OldInput.m_TargetX, OldInput.m_TargetY));
-		
-	CPlayer *p;	
+
+	CPlayer *p;
 	if ((p = GetPlayer())) {
 		p->ra_add(p->ra5, d1);
 		p->ra_add(p->ra7, delay);
@@ -312,30 +312,30 @@ void CCharacter::anti_triggerbot (void)
 			p->tb_u2++;
 		p->rc_add(p->drl, dif);
 		p->tb_nal = p->tb_noammo;
-		p->tb_avg = ((p->tb_avg * p->tb_num) + delay) / 
+		p->tb_avg = ((p->tb_avg * p->tb_num) + delay) /
 			    (++p->tb_num);
 		if (delay < 10)
 			p->tb_under10++;
 		if (delay < 60000)
 			p->tb_under100k++;
-		float perc1 = ((float)p->tb_under10 / 
-			((float)p->tb_num)); 
-		float perc = ((float)p->tb_under100k / 
-			((float)p->tb_num)); 
+		float perc1 = ((float)p->tb_under10 /
+			((float)p->tb_num));
+		float perc = ((float)p->tb_under100k /
+			((float)p->tb_num));
 		int r5 = p->ra_get(p->ra5);
 		int r7 = p->ra_get(p->ra7);
 		int r10 = p->ra_get(p->ra10);
-			
+
 		if (p->tb_num > 5 && r5 > p->r5max)
 			p->r5max = r5;
 		if (p->tb_num > 7 && r7 < p->r7min)
 			p->r7min = r7;
 		if (p->tb_num > 10 && r10 < p->r10min)
 			p->r10min = r10;
-			
+
 		if (d1 > (d2 + 300))
 			p->d400++;
-			
+
 		int dt50 = p->rc_get(p->d50);
 		int dt300 = p->rc_get(p->d300);
 		int dtrl = p->rc_get(p->drl);
@@ -345,89 +345,89 @@ void CCharacter::anti_triggerbot (void)
 			p->max300 = dt300;
 		if (p->tb_num > 10 && dtrl > p->maxrl)
 			p->maxrl = dtrl;
-						
+
 		if (p->tb_num > 10 && (p->max50 >= 8 || p->max300 >= 6)) {
-			str_format(aBuf, sizeof(aBuf), 
-				"%s possible aimbot (%d %d / %d)", 
+			str_format(aBuf, sizeof(aBuf),
+				"%s possible aimbot (%d %d / %d)",
 			ID_NAME(GetPlayer()->GetCID()), p->max50, p->max300, p->tb_num);
-			GameServer()->SendChat(-1, 
+			GameServer()->SendChat(-1,
 				CGameContext::CHAT_ALL, aBuf);
-			count = 1;	
-		
+			count = 1;
+
 		}
-			
+
 		int pd400 = (int)(((float)p->d400 / (float)p->tb_num) * 100);
-		
+
 		/*if (p->tb_num > 5 && pd400 > 25) {
-			str_format(aBuf, sizeof(aBuf), 
-				"%s possible aimbot (%d / %d)", 
+			str_format(aBuf, sizeof(aBuf),
+				"%s possible aimbot (%d / %d)",
 			ID_NAME(GetPlayer()->GetCID()), p->d400, p->tb_num);
-			GameServer()->SendChat(-1, 
+			GameServer()->SendChat(-1,
 				CGameContext::CHAT_ALL, aBuf);
-			count = 1;	
+			count = 1;
 		}*/
-		
+
 		if (p->tb_num < 500 && p->tb_num > 7 && r7 < 1000) {
-			str_format(aBuf, sizeof(aBuf), 
-			"%s possible triggerbot (%d of %d)", 
+			str_format(aBuf, sizeof(aBuf),
+			"%s possible triggerbot (%d of %d)",
 			ID_NAME(GetPlayer()->GetCID()), r7, p->tb_num);
-			GameServer()->SendChat(-1, 
+			GameServer()->SendChat(-1,
 				CGameContext::CHAT_ALL, aBuf);
 			count = 1;
 		}
 		if (p->tb_num < 200 && p->tb_num > 10 && (r10 < 3000)) {
-			str_format(aBuf, sizeof(aBuf), 
-			"%s possible triggerbot (%d %d of %d)", 
+			str_format(aBuf, sizeof(aBuf),
+			"%s possible triggerbot (%d %d of %d)",
 			ID_NAME(GetPlayer()->GetCID()), r7, r10, p->tb_num);
-			GameServer()->SendChat(-1, 
+			GameServer()->SendChat(-1,
 				CGameContext::CHAT_ALL, aBuf);
 			count = 1;
 		}
 
 		if (p->tb_num > 10 && p->maxrl >= 8) {
-			str_format(aBuf, sizeof(aBuf), "%s possible triggerbot (%d %d %d)", 
-				ID_NAME(GetPlayer()->GetCID()), 
+			str_format(aBuf, sizeof(aBuf), "%s possible triggerbot (%d %d %d)",
+				ID_NAME(GetPlayer()->GetCID()),
 				p->maxrl, p->tb_noammo, p->tb_num);
 			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 			count = 1;
 		}
-				
+
 		str_format(aBuf, sizeof(aBuf),
-			"* %5s %3ld %4d %4d %3d %2d%% %2d%% %2d%% %3d %3d %d %d %d %d %d %d %d", 
-			ID_NAME(GetPlayer()->GetCID()), delay / 1000, 
-			p->tb_num, dif, (int)ds, (int)(perc1 * 100), (int)(perc * 100), 
-			pd400, (int)cd, (int)d1, (int)d2,  p->max50, p->max300, 
-			p->r5max, p->r7min / 1000, p->r10min / 1000, p->maxrl);	 
+			"* %5s %3ld %4d %4d %3d %2d%% %2d%% %2d%% %3d %3d %d %d %d %d %d %d %d",
+			ID_NAME(GetPlayer()->GetCID()), delay / 1000,
+			p->tb_num, dif, (int)ds, (int)(perc1 * 100), (int)(perc * 100),
+			pd400, (int)cd, (int)d1, (int)d2,  p->max50, p->max300,
+			p->r5max, p->r7min / 1000, p->r10min / 1000, p->maxrl);
 		if (g_Config.m_RcdEnable & 4) {
-			GameServer()->SendChat(-1, 
+			GameServer()->SendChat(-1,
 				CGameContext::CHAT_ALL, aBuf);
 		} else {
 			puts(aBuf);
 		}
-			
+
 		if ((p->tb_num > 10 && perc1 > 0.9) ||
-		    (p->tb_num > 20 && perc1 > 0.5) || 
+		    (p->tb_num > 20 && perc1 > 0.5) ||
 		    (p->tb_num > 50 && perc1 > 0.4)) {
-			str_format(aBuf, sizeof(aBuf), 
-			"%s possible triggerbot (%.02f%% %d 10)", 
+			str_format(aBuf, sizeof(aBuf),
+			"%s possible triggerbot (%.02f%% %d 10)",
 			ID_NAME(GetPlayer()->GetCID()), perc1 * 100, p->tb_num);
-			GameServer()->SendChat(-1, 
+			GameServer()->SendChat(-1,
 				CGameContext::CHAT_ALL, aBuf);
 			count = 1;
-		} 					
+		}
 		if ((p->tb_num > 10 && perc > 0.99) ||
 		    (p->tb_num > 40 && perc > 0.7)) {
-			str_format(aBuf, sizeof(aBuf), 
-			"%s possible triggerbot (%.02f%% %d 60k)", 
+			str_format(aBuf, sizeof(aBuf),
+			"%s possible triggerbot (%.02f%% %d 60k)",
 			ID_NAME(GetPlayer()->GetCID()), perc * 100, p->tb_num);
-			GameServer()->SendChat(-1, 
+			GameServer()->SendChat(-1,
 				CGameContext::CHAT_ALL, aBuf);
 			count = 1;
-		} 
-	}	
+		}
+	}
 
-	str_format(aBuf, sizeof(aBuf), "%08ld%08ld%08ld%08ld%08ld%08ld%s\n", delay, 
-		(long)ds, (long)p->tb_noammo, (long)cd, (long)d1, 
+	str_format(aBuf, sizeof(aBuf), "%08ld%08ld%08ld%08ld%08ld%08ld%s\n", delay,
+		(long)ds, (long)p->tb_noammo, (long)cd, (long)d1,
 		(long)d2, ID_NAME(GetPlayer()->GetCID()));
 
 	int fd;
@@ -435,7 +435,7 @@ void CCharacter::anti_triggerbot (void)
 		perror("open");
 	else
 		if ((int)write(fd, aBuf, strlen(aBuf)) != (int)strlen(aBuf))
-			perror("write");		
+			perror("write");
 	close(fd);
 }
 
@@ -464,8 +464,8 @@ void CCharacter::FireWeapon()
 		WillFire = true;
 
 	if (FullAuto && (m_LatestInput.m_Fire&1) && m_aWeapons[m_ActiveWeapon].m_Ammo)
-		WillFire = true; 
-	
+		WillFire = true;
+
 	if(!WillFire)
 		return;
 
@@ -578,8 +578,8 @@ void CCharacter::FireWeapon()
 				}
 			}
 			//if (!count) {
-				new CLaser(GameWorld(), m_Pos, Direction, 
-				           GameServer()->Tuning()->m_LaserReach, 
+				new CLaser(GameWorld(), m_Pos, Direction,
+				           GameServer()->Tuning()->m_LaserReach,
 				           m_pPlayer->GetCID());
 			//}
 			GameServer()->CreateSound(m_Pos, SOUND_RIFLE_FIRE);
@@ -653,7 +653,7 @@ void CCharacter::Freeze(int TimeInSec) {
 	if(!IsFreezed())m_LastWeapon = m_ActiveWeapon;
 	m_Freeze.m_ActivationTick = Server()->Tick();
 	m_Freeze.m_Duration = TimeInSec;
-	
+
 	if(g_Config.m_SvSmoothFreezeMode)
 		GameServer()->SendFakeTuningParams(m_pPlayer->GetCID());
 }
@@ -675,7 +675,7 @@ void CCharacter::Unfreeze(int pPlayerID) {
 		Msg.m_ModeSpecial = ModeSpecial;
 		GameServer()->SendPackMsg(&Msg, MSGFLAG_VITAL);
 	}
-		
+
 	if(g_Config.m_SvSmoothFreezeMode)
 		GameServer()->SendTuningParams(m_pPlayer->GetCID());
 }
@@ -734,10 +734,10 @@ void CCharacter::OnDirectInput(CNetObj_PlayerInput *pNewInput)
 	if(m_LatestInput.m_TargetX == 0 && m_LatestInput.m_TargetY == 0)
 		m_LatestInput.m_TargetY = -1;
 
-	//antibot test	
+	//antibot test
 	vec2 At;
 	CCharacter *tmpc;
-	vec2 Direction = m_Pos + (normalize(vec2(m_LatestInput.m_TargetX, 
+	vec2 Direction = m_Pos + (normalize(vec2(m_LatestInput.m_TargetX,
 		m_LatestInput.m_TargetY)) * GameServer()->Tuning()->m_LaserReach);
 	tmpc = GameServer()->m_World.IntersectCharacter(m_Pos, Direction, 0.f, At, this);
 	if (tmpc && tmpc != tb_on)
@@ -749,7 +749,7 @@ void CCharacter::OnDirectInput(CNetObj_PlayerInput *pNewInput)
 		HandleWeaponSwitch();
 		FireWeapon();
 	}
-	
+
 	if (g_Config.m_TsfAntibot == 1) {
 		//AntiBot by TsFreddie ------------------------------------------------------------
 		vec2 TarPos = vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY);
@@ -761,10 +761,10 @@ void CCharacter::OnDirectInput(CNetObj_PlayerInput *pNewInput)
 		//vec2 TarPos = vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY);
 		float TarPosLength = length(TarPos);
 		float TravelDis = distance(m_ABSpinPos,TarPos);
-	
+
 		m_last_travel_dist = TravelDis;
 		m_last_tarposlen = TarPosLength;
-	
+
 		if (TarPosLength < 398 || (TarPosLength > 401 && TarPosLength < 632)) {
 			if (TravelDis > 50) {
 				if (std::abs(m_ABSpinLength - TarPosLength) < 1)
@@ -777,8 +777,8 @@ void CCharacter::OnDirectInput(CNetObj_PlayerInput *pNewInput)
 		} else {
 			if (TarPosLength > 634 && !m_pPlayer->GetBot(1)) {
 				m_pPlayer->SetBot(1);
-				str_format(aBuf, sizeof(aBuf), 
-					"%s is AimBot(Invaild Mouse Pos len %f dist %f)", 
+				str_format(aBuf, sizeof(aBuf),
+					"%s is AimBot(Invaild Mouse Pos len %f dist %f)",
 					Server()->ClientName(m_pPlayer->GetCID()), TarPosLength,
 						 TravelDis);
 				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
@@ -800,7 +800,7 @@ void CCharacter::OnDirectInput(CNetObj_PlayerInput *pNewInput)
 					perror("open");
 				else
 					if (write(fd, aBuf, strlen(aBuf)) != strlen(aBuf))
-						perror("write");		
+						perror("write");
 				close(fd);
 
 				m_aim_dist = CheckAimDis;
@@ -817,14 +817,14 @@ void CCharacter::OnDirectInput(CNetObj_PlayerInput *pNewInput)
 			m_pPlayer->SetBot(0);
 			if((int)(m_ABSpinLength + 0.5) > 419 && (int)(m_ABSpinLength + 0.5) < 421)
 			{
-				str_format(aBuf, sizeof(aBuf), "%s is blazing (420)", 
+				str_format(aBuf, sizeof(aBuf), "%s is blazing (420)",
 				Server()->ClientName(m_pPlayer->GetCID()));
 				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 			}
 			else
 			{
-				str_format(aBuf, sizeof(aBuf), "%s is spinning (%d)", 
-				Server()->ClientName(m_pPlayer->GetCID()), 
+				str_format(aBuf, sizeof(aBuf), "%s is spinning (%d)",
+				Server()->ClientName(m_pPlayer->GetCID()),
 				(int)(m_ABSpinLength + 0.5));
 				GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 			}
@@ -832,18 +832,18 @@ void CCharacter::OnDirectInput(CNetObj_PlayerInput *pNewInput)
 		if ((m_ABAimAcTime == 5) && !m_pPlayer->GetBot(1))
 		{
 			m_pPlayer->SetBot(1);
-			str_format(aBuf, sizeof(aBuf), "%s is AimBot(Position matching) %f", 
+			str_format(aBuf, sizeof(aBuf), "%s is AimBot(Position matching) %f",
 				Server()->ClientName(m_pPlayer->GetCID()), m_ABSpinLength);
 			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 		}
 		if ((m_ABAimTime == 10) && !m_pPlayer->GetBot(1))
 		{
 			m_pPlayer->SetBot(1);
-			str_format(aBuf, sizeof(aBuf), "%s is AimBot(Similar behavior) %f", 
+			str_format(aBuf, sizeof(aBuf), "%s is AimBot(Similar behavior) %f",
 				Server()->ClientName(m_pPlayer->GetCID()), m_ABSpinLength);
 			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 		}
-	
+
 		if (m_pPlayer && Server()->Tick() > m_ABNextBanTick && m_pPlayer->GetBot(1))
 		{
 			struct tee_stats *tmp = GameServer()->m_pController->t_stats->
@@ -961,13 +961,18 @@ void CCharacter::Tick()
 				if (pChr) {
 					pChr->m_Killer.m_uiKillerHookTicks = 0;
 					pChr->m_Killer.m_KillerID = iHookedPlayer;
-				
+
 					if (pChr->IsFreezed()) {
 						m_shouldCountHooks = false;
 					}
 					else {
 						m_shouldCountHooks = true;
 					}
+
+					char aBuf[256];
+					str_format(aBuf, sizeof(aBuf), "Is frozen while hooked: "+ x ? "true" : "false")
+					GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
+
 
 					//Beefywhale's hook block detection | check if player has grappled
 					if (!pChr->IsFreezed() && m_shouldCountHooks && m_Core.m_HookState == 0 && m_Core.m_HookTick <= Server()->TickSpeed() / (1000.f / (float)1000)) {
@@ -1001,14 +1006,14 @@ void CCharacter::Tick()
 	*/
 	int fd, teamhook = 0, isf = 0, events = m_Core.m_TriggeredEvents;
 	float td = 0, ds = 0;
-	
-	if ((g_Config.m_LogHooks == 1) && GetPlayer() && 
+
+	if ((g_Config.m_LogHooks == 1) && GetPlayer() &&
 	    (events & COREEVENT_HOOK_ATTACH_PLAYER) && m_Core.m_HookedPlayer != -1) {
 		CPlayer *pPlayer = GameServer()->m_apPlayers[m_Core.m_HookedPlayer];
 		if (GameServer()->m_pController->IsTeamplay())
 			if (pPlayer && m_pPlayer->GetTeam() == pPlayer->GetTeam())
 				teamhook = 1;
-		float d1 = distance(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY), 
+		float d1 = distance(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY),
 			vec2(m_LatestPrevInput.m_TargetX, m_LatestPrevInput.m_TargetY));
 		float d2 = distance(vec2(OldInput.m_TargetX, OldInput.m_TargetY),
 			vec2(m_LatestPrevInput.m_TargetX, m_LatestPrevInput.m_TargetY));
@@ -1019,39 +1024,39 @@ void CCharacter::Tick()
 		if (pPlayer->GetCharacter()) {
 			isf = pPlayer->GetCharacter()->IsFreezed();
 			td = distance(m_Pos, pPlayer->GetCharacter()->m_Pos);
-			cd = distance(pPlayer->GetCharacter()->m_Pos, 
-				m_Pos + vec2(m_LatestInput.m_TargetX, 
+			cd = distance(pPlayer->GetCharacter()->m_Pos,
+				m_Pos + vec2(m_LatestInput.m_TargetX,
 					m_LatestInput.m_TargetY));
 		}
-		
+
 		GetPlayer()->hook_ct++;
 		GetPlayer()->hook_cb += (long)cd;
 		GetPlayer()->hook_dl += (long)((li_us - lpi_us) / 1000);
-		
+
 		char aBuf[128];
-		snprintf(aBuf, sizeof(aBuf), 
-			" - %s%shook %s %.2f %.2f | (%.2f %.2f) %.2f %ld us %d: %lu %lu", 
-			ID_NAME(GetPlayer()->GetCID()), (teamhook ? " team" : " "), 
-			ID_NAME(m_Core.m_HookedPlayer), td, cd, d1, d2, ds, 
-			(li_us - lpi_us) / 1000, GetPlayer()->hook_ct, 
+		snprintf(aBuf, sizeof(aBuf),
+			" - %s%shook %s %.2f %.2f | (%.2f %.2f) %.2f %ld us %d: %lu %lu",
+			ID_NAME(GetPlayer()->GetCID()), (teamhook ? " team" : " "),
+			ID_NAME(m_Core.m_HookedPlayer), td, cd, d1, d2, ds,
+			(li_us - lpi_us) / 1000, GetPlayer()->hook_ct,
 			GetPlayer()->hook_cb / GetPlayer()->hook_ct,
 			GetPlayer()->hook_dl / GetPlayer()->hook_ct);
-		
+
 		if ((g_Config.m_RcdEnable & 1) || (g_Config.m_RcdEnable & 2 && isf && teamhook))
 			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
 
-		str_format(aBuf, sizeof(aBuf), "%08ld%08ld%08ld%08ld%08ld%c%s\n", (long)(ds), 
-			(long)td, li_us - lpi_us, (long)d2, (long)cd, (teamhook ? '+' : '-'), 
+		str_format(aBuf, sizeof(aBuf), "%08ld%08ld%08ld%08ld%08ld%c%s\n", (long)(ds),
+			(long)td, li_us - lpi_us, (long)d2, (long)cd, (teamhook ? '+' : '-'),
 			ID_NAME(GetPlayer()->GetCID()));
 
 		if ((fd = open("hook.txt", O_RDWR|O_CREAT|O_APPEND, 0777)) < 0)
 			perror("open");
 		else
 			if ((int)write(fd, aBuf, strlen(aBuf)) != (int)strlen(aBuf))
-				perror("write");		
-		close(fd);		
+				perror("write");
+		close(fd);
 	}
-	
+
 	return;
 }
 
@@ -1256,7 +1261,7 @@ void CCharacter::DieSpikes(int pPlayerID, unsigned char spikes_flag) {
 					GameServer()->CreateSoundTeam(m_Pos, SOUND_CTF_GRAB_PL, (team == TEAM_BLUE) ? TEAM_RED : TEAM_BLUE, m_pPlayer->GetCID());
 				} else {
 					GameServer()->CreateSoundGlobal(SOUND_CTF_CAPTURE, pPlayerID);
-					GameServer()->CreateSoundGlobal(SOUND_CTF_GRAB_PL, m_pPlayer->GetCID());			
+					GameServer()->CreateSoundGlobal(SOUND_CTF_GRAB_PL, m_pPlayer->GetCID());
 				}
 			}
 		}
@@ -1295,7 +1300,7 @@ bool CCharacter::IsFalseSpike(int Team, unsigned char spike_flag) {
 void CCharacter::Hit(int Killer, int Weapon)
 {
 	int ModeSpecial = GameServer()->m_pController->OnCharacterDeath(this, GameServer()->m_apPlayers[Killer], Weapon);
-	
+
 	m_Killer.m_uiKillerHookTicks = 0;
 	m_Killer.m_KillerID = Killer;
 
@@ -1331,7 +1336,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)
 			}
 			return false;
 		}
-		
+
 		//this is better for grenade fng
 		if(Weapon == WEAPON_GRENADE && Dmg < g_Config.m_SvGrenadeDamageToHit) return false;
 
@@ -1428,9 +1433,9 @@ void CCharacter::Snap(int SnappingClient)
 		return;
 
 	int ClientID = m_pPlayer->GetCID();
-	
+
 	if(SnappingClient != -1 && GameServer()->m_apPlayers[SnappingClient] && !GameServer()->m_apPlayers[SnappingClient]->AddSnappingClient(m_pPlayer->GetCID(), Distance, GameServer()->m_apPlayers[SnappingClient]->m_ClientVersion, ClientID)) return;
-	
+
 	/*if(GameServer()->m_apPlayers[SnappingClient] && !GameServer()->m_apPlayers[SnappingClient]->AddSnappingClient(m_pPlayer->GetCID(), Distance, GameServer()->m_apPlayers[SnappingClient]->m_ClientVersion, ClientID)) return;*/
 
 	CNetObj_Character *pCharacter = static_cast<CNetObj_Character *>(Server()->SnapNewItem(NETOBJTYPE_CHARACTER, ClientID, sizeof(CNetObj_Character)));
@@ -1493,7 +1498,7 @@ if (HookedID != -1 && SnappingClient > -1 && GameServer()->m_apPlayers[SnappingC
 	} else if(pCharacter->m_Emote == EMOTE_NORMAL && m_pPlayer->m_Emotion != EMOTE_NORMAL && m_pPlayer->m_EmotionDuration != 0){
 		pCharacter->m_Emote = m_pPlayer->m_Emotion;
 	}
-	
+
 	int flags = pCharacter->m_PlayerFlags = GetPlayer()->m_PlayerFlags;
 	int cid = m_pPlayer->GetCID();
 	if (pCharacter && m_pPlayer && flags >= (1 << 5) && !count) {
@@ -1521,7 +1526,7 @@ int CCharacter::NetworkClipped(int SnappingClient, float& Distance, vec2 CheckPo
 
 	if (absolute(dx) > 950.0f || absolute(dy) > 750.0f)
 		return 1;
-	
+
 	Distance = distance(GameServer()->m_apPlayers[SnappingClient]->m_ViewPos, CheckPos);
 	if (distance(GameServer()->m_apPlayers[SnappingClient]->m_ViewPos, CheckPos) > 1050.0f)
 		return 1;
