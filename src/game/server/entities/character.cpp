@@ -967,17 +967,8 @@ void CCharacter::Tick()
 					}
 					else {
 						m_shouldCountHooks = true;
+						return;
 					}
-
-					char aBuf[256];
-					if (pChr->IsFreezed()) {
-						str_format(aBuf, sizeof(aBuf), "Is frozen while hooked: true");
-					}
-					else {
-						str_format(aBuf, sizeof(aBuf), "Is frozen while hooked: false");
-					}
-					GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
-
 
 					//Beefywhale's hook block detection | check if player has grappled
 					if (!pChr->IsFreezed() && m_shouldCountHooks && m_Core.m_HookState == 0 && m_Core.m_HookTick <= Server()->TickSpeed() / (1000.f / (float)1000)) {
