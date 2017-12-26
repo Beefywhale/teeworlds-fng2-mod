@@ -964,10 +964,7 @@ void CCharacter::Tick()
 
 					if (pChr->IsFreezed()) {
 						m_shouldCountHooks = false;
-					} else {
-						m_shouldCountHooks = true;
 					}
-
 					//Beefywhale's hook block detection | check if player has grappled
 					if (m_shouldCountHooks && m_Core.m_HookState == 0 && m_Core.m_HookTick <= Server()->TickSpeed() / (1000.f / (float)1000)) {
 						m_hooks += 1;
@@ -994,6 +991,7 @@ void CCharacter::Tick()
 			}
 		}
 	}
+	m_shouldCountHooks = true;
 	/*
 	if(CountInput(m_LatestPrevInput.m_Hook, m_LatestInput.m_Hook).m_Presses)
 		RajhCheatDetector::OnFire(m_pPlayer);
