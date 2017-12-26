@@ -970,7 +970,12 @@ void CCharacter::Tick()
 					}
 
 					char aBuf[256];
-					str_format(aBuf, sizeof(aBuf), "Is frozen while hooked: "+ pChr->IsFreezed() ? "true" : "false");
+					if (pChr->IsFreezed()) {
+						str_format(aBuf, sizeof(aBuf), "Is frozen while hooked: true");
+					}
+					else {
+						str_format(aBuf, sizeof(aBuf), "Is frozen while hooked: false");
+					}
 					GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
 
