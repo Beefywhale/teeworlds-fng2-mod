@@ -963,10 +963,9 @@ void CCharacter::Tick()
 					pChr->m_Killer.m_KillerID = iHookedPlayer;
 
 					if (pChr->IsFreezed()) {
-						m_shouldCountHooks = true;
-						return;
-					} else {
 						m_shouldCountHooks = false;
+					} else {
+						m_shouldCountHooks = true;
 					}
 
 					//Beefywhale's hook block detection | check if player has grappled
